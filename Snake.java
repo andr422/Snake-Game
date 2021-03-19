@@ -2,8 +2,6 @@ import java.util.HashMap;
 
 public class Snake {
     int[] direction;
-    boolean appleEaten = false;
-
 
     HashMap<String, int[]> directions = new HashMap<>()
     {{
@@ -23,10 +21,7 @@ public class Snake {
     }
 
 
-    public void setAppleEaten(boolean isAppleEaten) {
-        this.appleEaten = isAppleEaten;
-    }
-    public void move(String move) {
+    public void move(String move, boolean appleEaten) {
         int[] directionToAdd = directions.get(move);
         for (int i = this.snakeBody.size(); i > 0; i--) {
             this.snakeBody.remove(i);

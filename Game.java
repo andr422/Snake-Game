@@ -24,34 +24,28 @@ public class Game {
         this.score = 0;
     }
 
+
     public void getAppleLocation() {
         do {
-            setRandomAppleLocation();
-        } while (!checkAppleLocation());
+            int maxXAxis = (this.width-1);
+            int maxYAxis = (this.height-1);
+            double doubleXAxis = Math.random() * maxXAxis;
+            double doubleYAxis = Math.random() * maxYAxis;
+            this.apple.location[0] = (int)doubleYAxis;
+            this.apple.location[1] = (int)doubleXAxis;
+        } while (!checkAppleCrash());
     }
-
-    public void setRandomAppleLocation (){
-        int maxXAxis = (this.width-1);
-        int maxYAxis = (this.height-1);
-        double doubleXAxis = Math.random() * maxXAxis;
-        double doubleYAxis = Math.random() * maxYAxis;
-        this.apple.location[0] = (int)doubleYAxis;
-        this.apple.location[1] = (int)doubleXAxis;
-    }
-
 
 
     public void startingPositionSnake(int height, int width) {
         int startingX = (width/2);
         int startingY = (height/2);
-        for (int i = 0; i < setSnakeLength(); i++) {
+        for (int i = 0; i < (this.width/4); i++) {
             this.snake.snakeBody.put(i, new int[]{startingY, (startingX-i)});
         }
     }
 
-    public int setSnakeLength() {
-        return (this.width/4);
-    }
+
     public void updateBoard() {
         for (int i = 0; i < this.height; i++) {
             for (int j = 0; j < this.width; j++) {
@@ -63,7 +57,6 @@ public class Game {
         }
         this.board[this.apple.location[0]][this.apple.location[1]] = 'A';
     }
-
 
 
     public void render() {
@@ -81,29 +74,33 @@ public class Game {
 
 
     public boolean checkInBounds(String input) {
-        switch (input) {
-            case "a":
-                return (!(this.snake.head()[1]==(0)));
-            case "s":
-                return (!(this.snake.head()[0]==(this.height-1)));
-            case "w":
-                return (!(this.snake.head()[0]==(0)));
-            case "d":
-                return (!(this.snake.head()[1]==(this.width-1)));
-            default:
-                return false;
-        }
+        return switch (input) {
+            case "a" -> (!(this.snake.head()[1] == (0)));
+            case "s" -> (!(this.snake.head()[0] == (this.height - 1)));
+            case "w" -> (!(this.snake.head()[0] == (0)));
+            case "d" -> (!(this.snake.head()[1] == (this.width - 1)));
+            default -> false;
+        };
     }
 
 
     //checkAppleLocation and checkNoCrash are glitchy
-    public boolean checkAppleLocation() {
-        if (this.snake.head()[0]==this.apple.location[0]&&this.snake.head()[1]==this.apple.location[1]) {
-            return false;
-        } else {
-            return true;
+    public boolean checkAppleCrash() {
+        //return true if right location
+        for (int i = 1; i < this.snake.snakeBody.size(); i++) {
+            if (this.apple.location[0]==this.snake.snakeBody.get(i)[0]&&this.apple.location[1]==this.snake.snakeBody.get(i)[1]) {
+                return false;
+            }
         }
+        return true;
     }
+
+
+    public boolean checkAppleEaten() {
+        return (this.snake.head()[0]==this.apple.location[0]&&this.snake.head()[1]==this.apple.location[1]);
+    }
+
+
     public boolean checkNoCrash() {
         for (int i = 1; i < this.snake.snakeBody.size(); i++) {
             if (this.snake.head()[0]==this.snake.snakeBody.get(i)[0]&&this.snake.head()[1]==this.snake.snakeBody.get(i)[1]) {
@@ -112,6 +109,8 @@ public class Game {
         }
         return true;
     }
+
+
     public void printScore() {
         if (score == 1) {
             System.out.println("You scored 1 point!");
@@ -119,39 +118,60 @@ public class Game {
             System.out.println("You scored "+score+" points!");
         }
     }
-    public void getMove (){
-        this.snake.appleEaten = false;
+
+
+    public void moveSequence (){
         String input;
         boolean promptMove = true;
         while (promptMove) {
-            System.out.println("Please enter a move - Either w, s, d, or a");
-            Scanner scanner = new Scanner(System.in);
-            input = scanner.nextLine();
-            if (input.equals("a")||input.equals("s")||input.equals("d")||input.equals("w")) {
+            input = getPlayerMove();
+            if (validMove(input)) {
                 if (this.checkInBounds(input)) {
                     if (this.checkNoCrash()) {
-                        promptMove = false;
-                        if (!this.checkAppleLocation()) {
+                        if (checkAppleEaten()) {
+                            System.out.println("You at an apple!");
                             this.getAppleLocation();
-                            this.snake.appleEaten = true;
+                            this.snake.move(input, true);
                             this.score +=1;
+                        } else {
+                            this.snake.move(input, false);
                         }
-                        this.snake.move(input);
-                    } else {
-                        System.out.println("You crashed into yourself! You died.");
-                        this.printScore();
                         promptMove = false;
-                        this.play = false;
+                    } else {
+                        promptMove = crashSelf();
                     }
                 } else {
-                    System.out.println("That move is out of bounds! You died.");
-                    this.printScore();
-                    promptMove = false;
-                    this.play = false;
+                    promptMove = crashWall();
                 }
             } else {
                 System.out.println("That isn't a valid move!");
             }
         }
+    }
+
+
+    public String getPlayerMove() {
+        System.out.println("Please enter a move - Either w, s, d, or a");
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
+
+    public boolean validMove(String input) {
+        return (input.equals("a")||input.equals("s")||input.equals("d")||input.equals("w"));
+    }
+
+    public boolean crashSelf() {
+        System.out.println("You crashed into yourself! You died.");
+        this.printScore();
+        this.play = false;
+        return false;
+    }
+
+
+    public boolean crashWall() {
+        System.out.println("That move is out of bounds! You died.");
+        this.printScore();
+        this.play = false;
+        return false;
     }
 }
