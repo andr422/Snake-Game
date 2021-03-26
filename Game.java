@@ -84,7 +84,6 @@ public class Game {
     }
 
 
-    //checkAppleLocation and checkNoCrash are glitchy
     public boolean checkAppleCrash() {
         //return true if right location
         for (int i = 1; i < this.snake.snakeBody.size(); i++) {
@@ -97,7 +96,7 @@ public class Game {
 
 
     public boolean checkAppleEaten() {
-        return (this.snake.head()[0]==this.apple.location[0]&&this.snake.head()[1]==this.apple.location[1]);
+        return ((this.snake.head()[0]==this.apple.location[0])&&(this.snake.head()[1]==this.apple.location[1]));
     }
 
 
@@ -128,13 +127,13 @@ public class Game {
             if (validMove(input)) {
                 if (this.checkInBounds(input)) {
                     if (this.checkNoCrash()) {
+                        this.snake.move(input);
                         if (checkAppleEaten()) {
-                            System.out.println("You at an apple!");
-                            this.getAppleLocation();
-                            this.snake.move(input, true);
+                            System.out.println("You ate an apple!");
                             this.score +=1;
+                            this.getAppleLocation();
                         } else {
-                            this.snake.move(input, false);
+                            this.snake.notEaten();
                         }
                         promptMove = false;
                     } else {

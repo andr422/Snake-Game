@@ -20,7 +20,6 @@ public class Console {
             game.render();
             game.moveSequence();
         }
-
     }
 
 
@@ -36,7 +35,7 @@ public class Console {
 
     public void askToPlay() {
         this.wantToPlay = false;
-        System.out.println("Type 1 to play Snake!");
+        System.out.println("Type 1 to play Snake or 0 to stop the program!");
         Scanner scanner = new Scanner(System.in);
         if (scanner.hasNextInt()) {
             if (scanner.nextInt()==1) {
