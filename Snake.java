@@ -20,13 +20,14 @@ public class Snake {
     }
 
 
-    public void move(String move) {
+    public boolean move(String move) {
         int[] directionToAdd = directions.get(move);
         for (int i = this.snakeBody.size(); i > 0; i--) {
             this.snakeBody.remove(i);
             this.snakeBody.put(i, this.snakeBody.get((i-1)));
         }
         this.snakeBody.put(0, new int[]{head()[0]+directionToAdd[0], head()[1]+directionToAdd[1]});
+        return false;
     }
 
     public void notEaten() {

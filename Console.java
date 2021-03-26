@@ -11,14 +11,19 @@ public class Console {
 
     public void play(boolean rules) {
         //true for switch sides false for normal
-        if (rules) {
-            System.out.println("Snake 2 coming soon. Here's Snake instead!");
-        }
         Game game = new Game(10, 40);
-        while (game.play) {
-            game.updateBoard();
-            game.render();
-            game.moveSequence();
+        if (rules) {
+            while (game.play) {
+                game.updateBoard();
+                game.render();
+                game.moveSequenceTwo();
+            }
+        } else {
+            while (game.play) {
+                game.updateBoard();
+                game.render();
+                game.moveSequence();
+            }
         }
     }
 

@@ -14,7 +14,6 @@ public class Game {
     public Game(int heightIn, int widthIn) {
         this.height = heightIn;
         this.width = widthIn;
-        //height: 20 width: 80
         this.board = new char[height][width];
         this.snake = new Snake();
         this.startingPositionSnake(this.height, this.width);
@@ -127,7 +126,7 @@ public class Game {
             if (validMove(input)) {
                 if (this.checkInBounds(input)) {
                     if (this.checkNoCrash()) {
-                        this.snake.move(input);
+                        promptMove = this.snake.move(input);
                         if (checkAppleEaten()) {
                             System.out.println("You ate an apple!");
                             this.score +=1;
@@ -135,13 +134,37 @@ public class Game {
                         } else {
                             this.snake.notEaten();
                         }
-                        promptMove = false;
                     } else {
-                        promptMove = crashSelf();
+                        promptMove = crash("You crashed into yourself! You died.");
                     }
                 } else {
-                    promptMove = crashWall();
+                    promptMove = crash("That move is out of bounds! You died.");
                 }
+            } else {
+                System.out.println("That isn't a valid move!");
+            }
+        }
+    }
+
+
+    public void moveSequenceTwo (){
+        String input;
+        boolean promptMove = true;
+        while (promptMove) {
+            input = getPlayerMove();
+            if (validMove(input)) {
+                    if (this.checkNoCrash()) {
+                        promptMove = this.moveTwo(input);
+                        if (checkAppleEaten()) {
+                            System.out.println("You ate an apple!");
+                            this.score +=1;
+                            this.getAppleLocation();
+                        } else {
+                            this.snake.notEaten();
+                        }
+                    } else {
+                        promptMove = crash("You crashed into yourself! You died.");
+                    }
             } else {
                 System.out.println("That isn't a valid move!");
             }
@@ -159,18 +182,31 @@ public class Game {
         return (input.equals("a")||input.equals("s")||input.equals("d")||input.equals("w"));
     }
 
-    public boolean crashSelf() {
-        System.out.println("You crashed into yourself! You died.");
+    public boolean crash(String message) {
+        System.out.println(message);
         this.printScore();
         this.play = false;
         return false;
     }
 
 
-    public boolean crashWall() {
-        System.out.println("That move is out of bounds! You died.");
-        this.printScore();
-        this.play = false;
+    public boolean moveTwo(String move) {
+        int[] directionToAdd = this.snake.directions.get(move);
+        for (int i = this.snake.snakeBody.size(); i > 0; i--) {
+            this.snake.snakeBody.remove(i);
+            this.snake.snakeBody.put(i, this.snake.snakeBody.get((i-1)));
+        }
+        if (move.equals("a")&&this.snake.head()[1]==0) {
+            this.snake.snakeBody.put(0, new int[]{this.snake.head()[0]+directionToAdd[0], (this.width - 1)});
+        } else if (move.equals("s")&&(this.snake.head()[0] == (this.height - 1))) {
+            this.snake.snakeBody.put(0, new int[]{0, this.snake.head()[1]+directionToAdd[1]});
+        } else if (move.equals("w")&&this.snake.head()[0] == (0)) {
+            this.snake.snakeBody.put(0, new int[]{(this.height - 1), this.snake.head()[1]+directionToAdd[1]});
+        } else if (move.equals("d")&&this.snake.head()[1] == (this.width - 1)) {
+            this.snake.snakeBody.put(0, new int[]{this.snake.head()[0]+directionToAdd[0], 0});
+        } else {
+            this.snake.snakeBody.put(0, new int[]{this.snake.head()[0]+directionToAdd[0], this.snake.head()[1]+directionToAdd[1]});
+        }
         return false;
     }
 }
